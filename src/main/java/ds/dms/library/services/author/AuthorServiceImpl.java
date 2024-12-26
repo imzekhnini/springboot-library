@@ -5,6 +5,7 @@ import ds.dms.library.dto.author.RequestAuthor;
 import ds.dms.library.dto.author.ResponseAuthor;
 import ds.dms.library.entities.Author;
 import ds.dms.library.mapper.author.AuthorMapper;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -44,6 +45,17 @@ public class AuthorServiceImpl implements AuthorService {
 
     @Override
     public ResponseAuthor editAuthor(Long id, RequestAuthor requestAuthor) {
-        return null;
+        Author author = authorRepository.findById(id).orElseThrow();
+        authorMapper.updateEntityFromRequest(requestAuthor,author);
+        Author updatedAuthor = authorRepository.save(author);
+        return authorMapper.toResponseAuthor(updatedAuthor);
+    }
+
+    @Override
+    public String deleteAuthor(Long id) {
+        Author author = authorRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Author not found with id: "+ id));
+        authorRepository.delete(author);
+        return "Author " + id + " deleted!";
     }
 }

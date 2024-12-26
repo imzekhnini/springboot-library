@@ -10,5 +10,5 @@ public interface AuthorService {
     ResponseAuthor getAuthorById(Long id);
     ResponseAuthor addAuthor(RequestAuthor requestAuthor);
     ResponseAuthor editAuthor(Long id, RequestAuthor requestAuthor);
-
+    String deleteAuthor(Long id);
 }

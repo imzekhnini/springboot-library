@@ -10,7 +10,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.function.EntityResponse;
 
+import javax.swing.*;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/authors")
@@ -35,5 +38,19 @@ public class AuthorController {
     public ResponseEntity<ResponseAuthor> addAuthor(@RequestBody RequestAuthor requestAuthor){
         ResponseAuthor author = authorService.addAuthor(requestAuthor);
         return ResponseEntity.ok(author);
+    }
+
+    @PutMapping("/{id}/update")
+    public ResponseEntity<ResponseAuthor> updateAuthor(@PathVariable Long id,@RequestBody RequestAuthor requestAuthor){
+        ResponseAuthor author = authorService.editAuthor(id, requestAuthor);
+        return ResponseEntity.ok(author);
+    }
+
+    @DeleteMapping("/{id}/delete")
+    public ResponseEntity<Map<String,String>> deleteAuthor(@PathVariable Long id){
+        String message = authorService.deleteAuthor(id);
+        Map<String,String> response = new HashMap<>();
+        response.put("massage",message);
+        return ResponseEntity.ok(response);
     }
 }
