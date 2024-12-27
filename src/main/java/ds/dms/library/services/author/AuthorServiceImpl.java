@@ -31,7 +31,8 @@ public class AuthorServiceImpl implements AuthorService {
 
     @Override
     public ResponseAuthor getAuthorById(Long id) {
-        Author author = authorRepository.findById(id).orElseThrow();
+        Author author = authorRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Author not found with id: "+id));
         ResponseAuthor authorRes = authorMapper.toResponseAuthor(author);
         return authorRes;
     }
@@ -45,7 +46,8 @@ public class AuthorServiceImpl implements AuthorService {
 
     @Override
     public ResponseAuthor editAuthor(Long id, RequestAuthor requestAuthor) {
-        Author author = authorRepository.findById(id).orElseThrow();
+        Author author = authorRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Author not found with id: "+ id));
         authorMapper.updateEntityFromRequest(requestAuthor,author);
         Author updatedAuthor = authorRepository.save(author);
         return authorMapper.toResponseAuthor(updatedAuthor);

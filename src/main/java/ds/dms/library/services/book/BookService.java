@@ -9,4 +9,6 @@ public interface BookService {
     List<ResponseBook> getAllBooks();
     ResponseBook getBookById(Long id);
     ResponseBook addBook(RequestBook requestBook);
+    ResponseBook updateBook(Long id, RequestBook requestBook);
+    String deleteBook(Long id);
 }

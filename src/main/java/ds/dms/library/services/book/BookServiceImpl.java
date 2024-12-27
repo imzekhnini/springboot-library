@@ -8,6 +8,7 @@ import ds.dms.library.entities.Author;
 import ds.dms.library.entities.Book;
 import ds.dms.library.mapper.book.BookMapper;
 import ds.dms.library.services.author.AuthorService;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -34,7 +35,9 @@ public class BookServiceImpl implements BookService {
 
     @Override
     public ResponseBook getBookById(Long id) {
-        return null;
+        Book book = bookRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Book not found with id: "+id));
+        return bookMapper.toResponseBook(book);
     }
 
     @Override
@@ -44,5 +47,22 @@ public class BookServiceImpl implements BookService {
         book.setAuthor(author);
         Book savedBook = bookRepository.save(book);
         return bookMapper.toResponseBook(savedBook);
+    }
+
+    @Override
+    public ResponseBook updateBook(Long id, RequestBook requestBook) {
+        Book book = bookRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Book not found with id: "+id));
+        bookMapper.updateEntityFromRequest(requestBook, book);
+        Book updatedBook = bookRepository.save(book);
+        return bookMapper.toResponseBook(updatedBook);
+    }
+
+    @Override
+    public String deleteBook(Long id) {
+        Book book = bookRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Book not found with id: "+id));
+        bookRepository.deleteById(id);
+        return "Book with id: "+id+" deleted!";
     }
 }
