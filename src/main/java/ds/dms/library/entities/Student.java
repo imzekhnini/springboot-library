@@ -22,5 +22,5 @@ public class Student {
     private List<Review> reviews;
 
     @OneToMany(mappedBy = "student", fetch = FetchType.LAZY)
-    private List<Borrowor> borrowers;
+    private List<Borrower> borrowers;
 }

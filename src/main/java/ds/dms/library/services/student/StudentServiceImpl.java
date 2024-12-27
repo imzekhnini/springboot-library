@@ -40,11 +40,8 @@ public class StudentServiceImpl implements StudentService {
 
     @Override
     public ResponseStudent addStudent(RequestStudent requestStudent) {
-        log.info("request => " + requestStudent);
         Student student = studentMapper.toEntity(requestStudent);
-        log.info("student => " + student);
         Student savedStudent = studentRepository.save(student);
-        log.info("saved student  => " + savedStudent);
         return studentMapper.toResponseStudent(savedStudent);
     }
 

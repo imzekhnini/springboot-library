@@ -30,7 +30,7 @@ public class Book {
     private Author author;
 
     @OneToMany(mappedBy = "book", fetch = FetchType.LAZY)
-    private List<Borrowor> borrowers;
+    private List<Borrower> borrowers;
 
     @ManyToMany()
     private List<Review> reviews;

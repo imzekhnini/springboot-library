@@ -11,7 +11,7 @@ import java.util.Date;
 @Entity
 @Data
 @AllArgsConstructor @NoArgsConstructor @ToString
-public class Borrowor {
+public class Borrower {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private Date borrowedDate;
