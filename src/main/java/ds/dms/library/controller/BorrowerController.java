@@ -38,7 +38,7 @@ public class BorrowerController {
 
     @PutMapping("/{id}/update")
     public ResponseEntity<ResponseBorrower> updateBorrower(@PathVariable Long id, @RequestBody RequestBorrower requestBorrower){
-        ResponseBorrower borrower = borrowerService.updateBorrower(id,requestBorrower);
+        ResponseBorrower borrower = borrowerService.updateBorrower(id, requestBorrower);
         return ResponseEntity.ok(borrower);
     }
 

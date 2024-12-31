@@ -59,6 +59,6 @@ public class StudentServiceImpl implements StudentService {
         Student student = studentRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Student not found with id: "+id));
         studentRepository.deleteById(id);
-        return "Student with id: "+ id +" is deleted!";
+        return "Student id: "+ id +" deleted!";
     }
 }

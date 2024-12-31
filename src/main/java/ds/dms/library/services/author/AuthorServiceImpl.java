@@ -58,6 +58,6 @@ public class AuthorServiceImpl implements AuthorService {
         Author author = authorRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Author not found with id: "+ id));
         authorRepository.delete(author);
-        return "Author " + id + " deleted!";
+        return "Author id: " + id + " deleted!";
     }
 }

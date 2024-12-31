@@ -69,6 +69,6 @@ public class BorrowerServiceImpl implements BorrowerService {
         Borrower borrower = borrowerRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Borrower not found with id: "+ id));
         borrowerRepository.deleteById(id);
-        return "Borrower with id: "+ id +"deleted!";
+        return "Borrower id: "+ id +" deleted!";
     }
 }

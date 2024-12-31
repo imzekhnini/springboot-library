@@ -16,9 +16,9 @@ public class Review {
     private Long id;
     private String reviewDesc;
 
-    @ManyToMany()
-    private List<Book> books;
+    @ManyToOne(fetch = FetchType.LAZY)
+    private Book book;
 
-    @ManyToOne()
+    @ManyToOne(fetch = FetchType.LAZY)
     private Student student;
 }

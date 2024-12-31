@@ -63,6 +63,6 @@ public class BookServiceImpl implements BookService {
         Book book = bookRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Book not found with id: "+id));
         bookRepository.deleteById(id);
-        return "Book with id: "+id+" deleted!";
+        return "Book id: "+id+" deleted!";
     }
 }
