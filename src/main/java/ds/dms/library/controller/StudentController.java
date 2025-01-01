@@ -3,6 +3,7 @@ package ds.dms.library.controller;
 import ds.dms.library.dto.book.ResponseBook;
 import ds.dms.library.dto.student.RequestStudent;
 import ds.dms.library.dto.student.ResponseStudent;
+import ds.dms.library.services.borrower.BorrowerService;
 import ds.dms.library.services.student.StudentService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
@@ -18,6 +19,7 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class StudentController {
     public final StudentService studentService;
+    public final BorrowerService borrowerService;
 
     @GetMapping("/")
     public ResponseEntity<List<ResponseStudent>> getAllStudents(){
@@ -29,6 +31,12 @@ public class StudentController {
     public ResponseEntity<ResponseStudent> getStudentById(@PathVariable Long id){
         ResponseStudent student = studentService.getStudentById(id);
         return ResponseEntity.ok(student);
+    }
+
+    @GetMapping("/top-borrowers")
+    public ResponseEntity<List<ResponseStudent>> getTopBorrowers(){
+        List<ResponseStudent> students = borrowerService.getTopBorrowers();
+        return ResponseEntity.ok(students);
     }
 
     @PostMapping("/create")

@@ -5,15 +5,18 @@ import ds.dms.library.dao.BorrowerRepository;
 import ds.dms.library.dao.StudentRepository;
 import ds.dms.library.dto.borrower.RequestBorrower;
 import ds.dms.library.dto.borrower.ResponseBorrower;
+import ds.dms.library.dto.student.ResponseStudent;
 import ds.dms.library.entities.Book;
 import ds.dms.library.entities.Borrower;
 import ds.dms.library.entities.Student;
 import ds.dms.library.mapper.borrower.BorrowerMapper;
+import ds.dms.library.mapper.student.StudentMapper;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -23,6 +26,7 @@ import java.util.stream.Collectors;
 public class BorrowerServiceImpl implements BorrowerService {
     public final BorrowerRepository borrowerRepository;
     public final BorrowerMapper borrowerMapper;
+    public final StudentMapper studentMapper;
     public final BookRepository bookRepository;
     public final StudentRepository studentRepository;
 
@@ -70,5 +74,22 @@ public class BorrowerServiceImpl implements BorrowerService {
                 .orElseThrow(() -> new EntityNotFoundException("Borrower not found with id: "+ id));
         borrowerRepository.deleteById(id);
         return "Borrower id: "+ id +" deleted!";
+    }
+
+    @Override
+    public List<ResponseStudent> getTopBorrowers() {
+        List<Object[]> results = borrowerRepository.findTopBorrowers();
+        List<Student> topBorrowers = new ArrayList<>();
+        for(Object[] result : results){
+            Long studentId = (Long) result[0];
+            Integer borrowCount = ((Long) result[1]).intValue();
+
+            Student student = studentRepository.findById(studentId).orElse(null);
+            if (student != null){
+                topBorrowers.add(student);
+            }
+        }
+        List<ResponseStudent> resStudents = topBorrowers.stream().map(studentMapper::toResponseStudent).collect(Collectors.toList());
+        return resStudents;
     }
 }

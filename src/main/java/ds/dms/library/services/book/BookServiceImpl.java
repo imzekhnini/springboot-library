@@ -6,6 +6,7 @@ import ds.dms.library.dto.book.RequestBook;
 import ds.dms.library.dto.book.ResponseBook;
 import ds.dms.library.entities.Author;
 import ds.dms.library.entities.Book;
+import ds.dms.library.entities.BookGenre;
 import ds.dms.library.mapper.book.BookMapper;
 import ds.dms.library.services.author.AuthorService;
 import jakarta.persistence.EntityNotFoundException;
@@ -64,5 +65,37 @@ public class BookServiceImpl implements BookService {
                 .orElseThrow(() -> new EntityNotFoundException("Book not found with id: "+id));
         bookRepository.deleteById(id);
         return "Book id: "+id+" deleted!";
+    }
+
+    @Override
+    public List<ResponseBook> getBooksByAuthorId(Long id) {
+        List<Book> books = bookRepository.findByAuthorId(id);
+        List<ResponseBook> resBooks = books.stream()
+                .map(bookMapper::toResponseBook).collect(Collectors.toList());
+        return resBooks;
+    }
+
+    @Override
+    public List<ResponseBook> getBooksByBookGenre(BookGenre genre) {
+        List<Book> books = bookRepository.findByGenre(genre);
+        List<ResponseBook> resBooks = books.stream()
+                .map(bookMapper::toResponseBook).collect(Collectors.toList());
+        return resBooks;
+    }
+
+    @Override
+    public List<ResponseBook> getCurrentlyBorrowedBooks() {
+        List<Book> books = bookRepository.findCurrentlyBorrowedBooks();
+        List<ResponseBook> resBooks = books.stream()
+                .map(bookMapper::toResponseBook).collect(Collectors.toList());
+        return resBooks;
+    }
+
+    @Override
+    public List<ResponseBook> getBooksBorrowedByStudentById(Long id) {
+        List<Book> books = bookRepository.findBooksBorrowedByStudentById(id);
+        List<ResponseBook> resBooks = books.stream()
+                .map(bookMapper::toResponseBook).collect(Collectors.toList());
+        return resBooks;
     }
 }

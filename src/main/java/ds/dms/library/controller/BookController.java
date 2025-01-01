@@ -2,6 +2,7 @@ package ds.dms.library.controller;
 
 import ds.dms.library.dto.book.RequestBook;
 import ds.dms.library.dto.book.ResponseBook;
+import ds.dms.library.entities.BookGenre;
 import ds.dms.library.services.book.BookService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -22,6 +23,30 @@ public class BookController {
     @GetMapping("/")
     public ResponseEntity<List<ResponseBook>> getAllBooks(){
         List<ResponseBook> books = bookService.getAllBooks();
+        return ResponseEntity.ok(books);
+    }
+
+    @GetMapping("/author/{id}")
+    public ResponseEntity<List<ResponseBook>> getBooksByAuthorId(@PathVariable Long id){
+        List<ResponseBook> books = bookService.getBooksByAuthorId(id);
+        return ResponseEntity.ok(books);
+    }
+
+    @GetMapping("/genre/{genre}")
+    public ResponseEntity<List<ResponseBook>> getBooksByGenre(@PathVariable BookGenre genre){
+        List<ResponseBook> books = bookService.getBooksByBookGenre(genre);
+        return ResponseEntity.ok(books);
+    }
+
+    @GetMapping("/borrowedCurrently")
+    public ResponseEntity<List<ResponseBook>> getCurrentlyBorrowedBooks(){
+        List<ResponseBook> books = bookService.getCurrentlyBorrowedBooks();
+        return ResponseEntity.ok(books);
+    }
+
+    @GetMapping("/borrowed/student/{id}")
+    public ResponseEntity<List<ResponseBook>> getBooksBorrowedByStudentById(@PathVariable Long id){
+        List<ResponseBook> books = bookService.getBooksBorrowedByStudentById(id);
         return ResponseEntity.ok(books);
     }
 
@@ -50,4 +75,5 @@ public class BookController {
         response.put("message",message);
         return ResponseEntity.ok(response);
     }
+
 }
