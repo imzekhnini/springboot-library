@@ -11,4 +11,6 @@ public interface StudentService {
     ResponseStudent addStudent(RequestStudent requestStudent);
     ResponseStudent updateStudent(Long id, RequestStudent requestStudent);
     String deleteStudent(Long id);
+
+    List<ResponseStudent> getBorrowersByBookId(Long id);
 }

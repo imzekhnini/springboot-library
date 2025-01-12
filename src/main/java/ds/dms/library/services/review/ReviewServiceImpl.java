@@ -40,6 +40,24 @@ public class ReviewServiceImpl implements ReviewService {
     }
 
     @Override
+    public List<ResponseReview> getReviewByBookId(Long id) {
+        List<Review> reviews = reviewRepository.findReviewsByBookId(id);
+        List<ResponseReview> resReviews = reviews.stream()
+                .map(reviewMapper::toReviewResponse)
+                .collect(Collectors.toList());
+        return resReviews;
+    }
+
+    @Override
+    public List<ResponseReview> getReviewsByStudentId(Long id) {
+        List<Review> reviews = reviewRepository.findReviewsByStudentId(id);
+        List<ResponseReview> resReviews = reviews.stream()
+                .map(reviewMapper::toReviewResponse)
+                .collect(Collectors.toList());
+        return resReviews;
+    }
+
+    @Override
     public ResponseReview addReview(RequestReview requestReview) {
         Book book = bookRepository.findById(requestReview.getBookId())
                 .orElseThrow(() -> new EntityNotFoundException("Book not found with id: "+requestReview.getBookId()));
@@ -70,4 +88,6 @@ public class ReviewServiceImpl implements ReviewService {
         reviewRepository.deleteById(id);
         return "Review id: "+id+" deleted!";
     }
+
+
 }

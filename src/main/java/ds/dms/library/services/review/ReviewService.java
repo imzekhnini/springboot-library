@@ -11,4 +11,7 @@ public interface ReviewService {
     ResponseReview addReview(RequestReview requestReview);
     ResponseReview updateReview(Long id, RequestReview requestReview);
     String deleteReview(Long id);
+
+    List<ResponseReview> getReviewByBookId(Long id);
+    List<ResponseReview> getReviewsByStudentId(Long id);
 }

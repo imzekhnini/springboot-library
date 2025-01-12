@@ -2,8 +2,12 @@ package ds.dms.library.controller;
 
 import ds.dms.library.dto.book.RequestBook;
 import ds.dms.library.dto.book.ResponseBook;
+import ds.dms.library.dto.review.ResponseReview;
+import ds.dms.library.dto.student.ResponseStudent;
 import ds.dms.library.entities.BookGenre;
 import ds.dms.library.services.book.BookService;
+import ds.dms.library.services.review.ReviewService;
+import ds.dms.library.services.student.StudentService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -19,6 +23,8 @@ import java.util.Map;
 @RequestMapping("/api/books")
 public class BookController {
     public final BookService bookService;
+    public final StudentService studentService;
+    public final ReviewService reviewService;
 
     @GetMapping("/")
     public ResponseEntity<List<ResponseBook>> getAllBooks(){
@@ -44,7 +50,7 @@ public class BookController {
         return ResponseEntity.ok(books);
     }
 
-    @GetMapping("/borrowed/student/{id}")
+    @GetMapping("/student/{id}/borrowed")
     public ResponseEntity<List<ResponseBook>> getBooksBorrowedByStudentById(@PathVariable Long id){
         List<ResponseBook> books = bookService.getBooksBorrowedByStudentById(id);
         return ResponseEntity.ok(books);
@@ -54,6 +60,18 @@ public class BookController {
     public ResponseEntity<ResponseBook> getBookById(@PathVariable Long id){
         ResponseBook book = bookService.getBookById(id);
         return ResponseEntity.ok(book);
+    }
+
+    @GetMapping("/{id}/borrowers")
+    public ResponseEntity<List<ResponseStudent>> getBorrowersByBookId(@PathVariable Long id){
+        List<ResponseStudent> students = studentService.getBorrowersByBookId(id);
+        return ResponseEntity.ok(students);
+    }
+
+    @GetMapping("/{id}/reviews")
+    public ResponseEntity<List<ResponseReview>> getReviewsByBookId(@PathVariable Long id){
+        List<ResponseReview> reviews = reviewService.getReviewByBookId(id);
+        return ResponseEntity.ok(reviews);
     }
 
     @PostMapping("/create")

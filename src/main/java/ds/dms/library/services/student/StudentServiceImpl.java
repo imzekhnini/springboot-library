@@ -30,6 +30,14 @@ public class StudentServiceImpl implements StudentService {
                 .collect(Collectors.toList());
         return resStudents;
     }
+    @Override
+    public List<ResponseStudent> getBorrowersByBookId(Long id) {
+        List<Student> students = studentRepository.findBorrowersByBookId(id);
+        List<ResponseStudent> resStudents = students.stream()
+                .map(studentMapper::toResponseStudent)
+                .collect(Collectors.toList());
+        return resStudents;
+    }
 
     @Override
     public ResponseStudent getStudentById(Long id) {
@@ -61,4 +69,6 @@ public class StudentServiceImpl implements StudentService {
         studentRepository.deleteById(id);
         return "Student id: "+ id +" deleted!";
     }
+
+
 }
