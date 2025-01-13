@@ -13,4 +13,5 @@ public interface StudentService {
     String deleteStudent(Long id);
 
     List<ResponseStudent> getBorrowersByBookId(Long id);
+    Integer getCountTotalBooksByStudentId(Long id);
 }

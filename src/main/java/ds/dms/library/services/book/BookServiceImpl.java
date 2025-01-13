@@ -10,11 +10,14 @@ import ds.dms.library.entities.BookGenre;
 import ds.dms.library.mapper.book.BookMapper;
 import ds.dms.library.services.author.AuthorService;
 import jakarta.persistence.EntityNotFoundException;
+import jakarta.persistence.criteria.CriteriaBuilder;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -97,5 +100,26 @@ public class BookServiceImpl implements BookService {
         List<ResponseBook> resBooks = books.stream()
                 .map(bookMapper::toResponseBook).collect(Collectors.toList());
         return resBooks;
+    }
+
+    @Override
+    public List<ResponseBook> getBooksSearchByTitle(String title) {
+        List<Book> books = bookRepository.findByTitleContainingIgnoreCase(title);
+        List<ResponseBook> responseBooks = books.stream()
+                .map(bookMapper::toResponseBook).collect(Collectors.toList());
+        return responseBooks;
+    }
+
+    @Override
+    public Map<String, Integer> getBooksCountByGenre() {
+        List<Object[]> responses = bookRepository.getBookCountByGenre();
+        Map<String,Integer> countGenre = new HashMap<>();
+        for (Object[] response : responses){
+            BookGenre genre = (BookGenre) response[0];
+            String genreName = genre.name();
+            Integer count = ((Long) response[1]).intValue();
+            countGenre.put(genreName,count);
+        }
+        return countGenre;
     }
 }

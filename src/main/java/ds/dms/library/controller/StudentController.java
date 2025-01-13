@@ -1,6 +1,5 @@
 package ds.dms.library.controller;
 
-import ds.dms.library.dto.book.ResponseBook;
 import ds.dms.library.dto.review.ResponseReview;
 import ds.dms.library.dto.student.RequestStudent;
 import ds.dms.library.dto.student.ResponseStudent;
@@ -8,7 +7,6 @@ import ds.dms.library.services.borrower.BorrowerService;
 import ds.dms.library.services.review.ReviewService;
 import ds.dms.library.services.student.StudentService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -34,6 +32,12 @@ public class StudentController {
     public ResponseEntity<ResponseStudent> getStudentById(@PathVariable Long id){
         ResponseStudent student = studentService.getStudentById(id);
         return ResponseEntity.ok(student);
+    }
+
+    @GetMapping("/{id}/borrow-stats")
+    public ResponseEntity<Integer> getCountTotalBooksByStudentId(@PathVariable Long id){
+        Integer counter = studentService.getCountTotalBooksByStudentId(id);
+        return ResponseEntity.ok(counter);
     }
 
     @GetMapping("/{id}/reviews")

@@ -1,5 +1,6 @@
 package ds.dms.library.services.student;
 
+import ds.dms.library.dao.BorrowerRepository;
 import ds.dms.library.dao.StudentRepository;
 import ds.dms.library.dto.student.RequestStudent;
 import ds.dms.library.dto.student.ResponseStudent;
@@ -7,6 +8,7 @@ import ds.dms.library.entities.Author;
 import ds.dms.library.entities.Student;
 import ds.dms.library.mapper.student.StudentMapper;
 import jakarta.persistence.EntityNotFoundException;
+import jakarta.persistence.criteria.CriteriaBuilder;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -21,6 +23,7 @@ import java.util.stream.Collectors;
 public class StudentServiceImpl implements StudentService {
     public final StudentRepository studentRepository;
     public final StudentMapper studentMapper;
+    public final BorrowerRepository borrowerRepository;
 
     @Override
     public List<ResponseStudent> getAllStudent() {
@@ -37,6 +40,13 @@ public class StudentServiceImpl implements StudentService {
                 .map(studentMapper::toResponseStudent)
                 .collect(Collectors.toList());
         return resStudents;
+    }
+
+    @Override
+    public Integer getCountTotalBooksByStudentId(Long id) {
+        Object[] response = borrowerRepository.findCountTotalBooksByStudentId(id);
+        Integer counter = ((Long) response[0]).intValue();
+        return counter;
     }
 
     @Override

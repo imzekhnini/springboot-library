@@ -5,6 +5,7 @@ import ds.dms.library.dto.book.ResponseBook;
 import ds.dms.library.entities.BookGenre;
 
 import java.util.List;
+import java.util.Map;
 
 public interface BookService {
     List<ResponseBook> getAllBooks();
@@ -17,4 +18,6 @@ public interface BookService {
     List<ResponseBook> getBooksByBookGenre(BookGenre genre);
     List<ResponseBook> getCurrentlyBorrowedBooks();
     List<ResponseBook> getBooksBorrowedByStudentById(Long id);
+    List<ResponseBook> getBooksSearchByTitle(String title);
+    Map<String, Integer> getBooksCountByGenre();
 }

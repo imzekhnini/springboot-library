@@ -38,6 +38,18 @@ public class BookController {
         return ResponseEntity.ok(books);
     }
 
+    @GetMapping("/search")
+    public ResponseEntity<List<ResponseBook>> getBooksSearchByTitle(@RequestParam("title") String title){
+        List<ResponseBook> books = bookService.getBooksSearchByTitle(title);
+        return ResponseEntity.ok(books);
+    }
+
+    @GetMapping("/countByGenre")
+    public ResponseEntity<Map<String, Integer>> getCountBooksByGenre(){
+        Map<String, Integer> response = bookService.getBooksCountByGenre();
+        return ResponseEntity.ok(response);
+    }
+
     @GetMapping("/genre/{genre}")
     public ResponseEntity<List<ResponseBook>> getBooksByGenre(@PathVariable BookGenre genre){
         List<ResponseBook> books = bookService.getBooksByBookGenre(genre);
