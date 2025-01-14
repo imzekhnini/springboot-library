@@ -30,6 +30,12 @@ public class BorrowerController {
         return ResponseEntity.ok(borrower);
     }
 
+    @GetMapping("/overdue")
+    public ResponseEntity<List<Map<String, Object>>> getOverdueBorrowedBooks(){
+        List<Map<String, Object>> response = borrowerService.getOverdueBorrowedBooks();
+        return ResponseEntity.ok(response);
+    }
+
     @PostMapping("/create")
     public ResponseEntity<ResponseBorrower> addBorrower(@RequestBody RequestBorrower requestBorrower){
         ResponseBorrower borrower = borrowerService.addBorrower(requestBorrower);

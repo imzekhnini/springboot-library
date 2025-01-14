@@ -24,4 +24,7 @@ public interface BookRepository extends JpaRepository<Book,Long> {
 
     @Query("SELECT DISTINCT b.genre, COUNT(b) FROM Book b GROUP BY b.genre")
     List<Object[]> getBookCountByGenre();
+
+    @Query("SELECT b.id, b.title, COUNT(r.id) as counter FROM Book b JOIN b.reviews r GROUP BY b.id ORDER BY counter DESC LIMIT 5")
+    List<Object[]> getTopReviewedBooks();
 }

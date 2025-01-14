@@ -15,6 +15,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -121,5 +122,19 @@ public class BookServiceImpl implements BookService {
             countGenre.put(genreName,count);
         }
         return countGenre;
+    }
+
+    @Override
+    public List<Map<String,Object>> getTopReviewedBooks() {
+        List<Object[]> response = bookRepository.getTopReviewedBooks();
+        List<Map<String,Object>> books = new ArrayList<>();
+        for (Object[] entry : response){
+            Map<String, Object> book = new HashMap<>();
+            book.put("id", entry[0]);
+            book.put("title", entry[1]);
+            book.put("reviews", entry[2]);
+            books.add(book);
+        }
+        return books;
     }
 }

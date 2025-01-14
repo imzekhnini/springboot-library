@@ -60,4 +60,10 @@ public class AuthorServiceImpl implements AuthorService {
         authorRepository.delete(author);
         return "Author id: " + id + " deleted!";
     }
+
+    @Override
+    public ResponseAuthor getTopAuthorWithMostBooks() {
+        Author author = authorRepository.findTopAuthorWithMostBooks();
+        return authorMapper.toResponseAuthor(author);
+    }
 }

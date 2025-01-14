@@ -5,6 +5,7 @@ import ds.dms.library.dto.borrower.ResponseBorrower;
 import ds.dms.library.dto.student.ResponseStudent;
 
 import java.util.List;
+import java.util.Map;
 
 public interface BorrowerService {
     List<ResponseBorrower> getAllBorrowers();
@@ -14,4 +15,5 @@ public interface BorrowerService {
     String deleteBorrower(Long id);
 
     List<ResponseStudent> getTopBorrowers();
+    List<Map<String, Object>> getOverdueBorrowedBooks();
 }

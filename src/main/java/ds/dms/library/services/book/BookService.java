@@ -20,4 +20,5 @@ public interface BookService {
     List<ResponseBook> getBooksBorrowedByStudentById(Long id);
     List<ResponseBook> getBooksSearchByTitle(String title);
     Map<String, Integer> getBooksCountByGenre();
+    List<Map<String,Object>> getTopReviewedBooks();
 }

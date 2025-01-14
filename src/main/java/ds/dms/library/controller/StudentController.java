@@ -40,6 +40,12 @@ public class StudentController {
         return ResponseEntity.ok(counter);
     }
 
+    @GetMapping("/{id}/borrows-history")
+    public ResponseEntity<List<Map<String, Object>>> getBorrowingHistoryByStudentId(@PathVariable Long id){
+        List<Map<String, Object>> response = studentService.getBorrowingHistoryByStudentId(id);
+        return ResponseEntity.ok(response);
+    }
+
     @GetMapping("/{id}/reviews")
     public ResponseEntity<List<ResponseReview>> getReviewsByStudentId(@PathVariable Long id){
         List<ResponseReview> reviews = reviewService.getReviewsByStudentId(id);

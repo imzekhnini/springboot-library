@@ -16,8 +16,14 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.sql.Timestamp;
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -91,5 +97,23 @@ public class BorrowerServiceImpl implements BorrowerService {
         }
         List<ResponseStudent> resStudents = topBorrowers.stream().map(studentMapper::toResponseStudent).collect(Collectors.toList());
         return resStudents;
+    }
+
+    @Override
+    public List<Map<String, Object>> getOverdueBorrowedBooks() {
+        List<Object[]> response = borrowerRepository.findOverdueBorrowedBooks();
+        List<Map<String, Object>> borrowers = new ArrayList<>();
+        for (Object[] entry : response){
+            Map<String, Object> borrower = new HashMap<>();
+            borrower.put("id", entry[0]);
+            borrower.put("student_name", entry[1]);
+            borrower.put("book_title", entry[2]);
+            Timestamp returnDate = (Timestamp) entry[3];
+            OffsetDateTime dateTime = returnDate.toInstant().atOffset(ZoneOffset.UTC);
+            String formatDate = dateTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"));
+            borrower.put("return_data", formatDate);
+            borrowers.add(borrower);
+        }
+        return borrowers;
     }
 }

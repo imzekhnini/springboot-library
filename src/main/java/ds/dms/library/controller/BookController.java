@@ -62,6 +62,12 @@ public class BookController {
         return ResponseEntity.ok(books);
     }
 
+    @GetMapping("/stats/most-reviewed")
+    public ResponseEntity<List<Map<String,Object>>> getTopReviewedBooks(){
+        List<Map<String,Object>> response = bookService.getTopReviewedBooks();
+        return ResponseEntity.ok(response);
+    }
+
     @GetMapping("/student/{id}/borrowed")
     public ResponseEntity<List<ResponseBook>> getBooksBorrowedByStudentById(@PathVariable Long id){
         List<ResponseBook> books = bookService.getBooksBorrowedByStudentById(id);

@@ -14,7 +14,14 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.io.Serial;
+import java.sql.Timestamp;
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -47,6 +54,30 @@ public class StudentServiceImpl implements StudentService {
         Object[] response = borrowerRepository.findCountTotalBooksByStudentId(id);
         Integer counter = ((Long) response[0]).intValue();
         return counter;
+    }
+
+    @Override
+    public List<Map<String, Object>> getBorrowingHistoryByStudentId(Long id) {
+        List<Object[]> response = borrowerRepository.findBorrowingHistoryByStudentId(id);
+        List<Map<String, Object>> books = new ArrayList<>();
+        for (Object[] entry : response){
+            Map<String, Object> book = new HashMap<>();
+            book.put("book_title", entry[0]);
+            Timestamp tsBorrowDate = (Timestamp) entry[1];
+            OffsetDateTime borrowDate = tsBorrowDate.toInstant().atOffset(ZoneOffset.UTC);
+            String formatBorrowDate = borrowDate.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"));
+            book.put("borrowed_date", formatBorrowDate);
+            if (entry[2] == null){
+                book.put("return_date", null);
+            }else{
+                Timestamp tsReturnDate = (Timestamp) entry[2];
+                OffsetDateTime returnDate = tsReturnDate.toInstant().atOffset(ZoneOffset.UTC);
+                String formatReturnDate = returnDate.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"));
+                book.put("return_date", formatReturnDate);
+            }
+            books.add(book);
+        }
+        return books;
     }
 
     @Override

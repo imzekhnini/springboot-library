@@ -34,6 +34,12 @@ public class AuthorController {
         return ResponseEntity.ok(author);
     }
 
+    @GetMapping("/with-most-books")
+    public ResponseEntity<ResponseAuthor> getTopAuthorWithMostBooks(){
+        ResponseAuthor author = authorService.getTopAuthorWithMostBooks();
+        return ResponseEntity.ok(author);
+    }
+
     @PostMapping("/create")
     public ResponseEntity<ResponseAuthor> addAuthor(@RequestBody RequestAuthor requestAuthor){
         ResponseAuthor author = authorService.addAuthor(requestAuthor);

@@ -11,4 +11,6 @@ public interface AuthorService {
     ResponseAuthor addAuthor(RequestAuthor requestAuthor);
     ResponseAuthor editAuthor(Long id, RequestAuthor requestAuthor);
     String deleteAuthor(Long id);
+
+    ResponseAuthor getTopAuthorWithMostBooks();
 }
