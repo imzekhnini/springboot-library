@@ -1,6 +1,7 @@
 package ds.dms.library.dao;
 
 import ds.dms.library.entities.Borrower;
+import ds.dms.library.entities.Student;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -25,4 +26,10 @@ public interface BorrowerRepository extends JpaRepository<Borrower,Long> {
             "ORDER BY borrow_count DESC " +
             "LIMIT 5", nativeQuery = true)
     List<Object[]> findTopBorrowers();
+
+    @Query("SELECT br.student FROM Borrower br WHERE br.book.id = :bookId")
+    List<Student> findAllBorrowersOfBookById(@Param("bookId") Long bookId);
+
+    @Query("SELECT br FROM Borrower br WHERE br.book.id = :bookId")
+    List<Borrower> findAllBorrowersWithDetailsOfBookById(@Param("bookId") Long bookId);
 }

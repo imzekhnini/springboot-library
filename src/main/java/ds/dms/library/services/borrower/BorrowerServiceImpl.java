@@ -116,4 +116,12 @@ public class BorrowerServiceImpl implements BorrowerService {
         }
         return borrowers;
     }
+
+    @Override
+    public List<ResponseBorrower> getAllBorrowersWithDetailsOfBookById(Long id) {
+        List<Borrower> borrowers = borrowerRepository.findAllBorrowersWithDetailsOfBookById(id);
+        List<ResponseBorrower> resBorrowers = borrowers.stream()
+                .map(borrowerMapper::toResponseBorrower).toList();
+        return resBorrowers;
+    }
 }

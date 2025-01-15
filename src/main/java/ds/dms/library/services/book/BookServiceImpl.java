@@ -2,13 +2,20 @@ package ds.dms.library.services.book;
 
 import ds.dms.library.dao.AuthorRepository;
 import ds.dms.library.dao.BookRepository;
+import ds.dms.library.dao.BorrowerRepository;
+import ds.dms.library.dao.ReviewRepository;
 import ds.dms.library.dto.book.RequestBook;
 import ds.dms.library.dto.book.ResponseBook;
-import ds.dms.library.entities.Author;
-import ds.dms.library.entities.Book;
-import ds.dms.library.entities.BookGenre;
+import ds.dms.library.dto.book.ResponseBookDetails;
+import ds.dms.library.dto.borrower.ResponseBorrower;
+import ds.dms.library.dto.review.ResponseReview;
+import ds.dms.library.dto.student.ResponseStudent;
+import ds.dms.library.entities.*;
 import ds.dms.library.mapper.book.BookMapper;
+import ds.dms.library.mapper.student.StudentMapper;
 import ds.dms.library.services.author.AuthorService;
+import ds.dms.library.services.borrower.BorrowerService;
+import ds.dms.library.services.review.ReviewService;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import lombok.RequiredArgsConstructor;
@@ -28,6 +35,10 @@ public class BookServiceImpl implements BookService {
     public final BookRepository bookRepository;
     public final AuthorRepository authorRepository;
     public final BookMapper bookMapper;
+    public final BorrowerRepository borrowerRepository;
+    public final StudentMapper studentMapper;
+    public final ReviewService reviewService;
+    public final BorrowerService borrowerService;
 
     @Override
     public List<ResponseBook> getAllBooks() {
@@ -136,5 +147,60 @@ public class BookServiceImpl implements BookService {
             books.add(book);
         }
         return books;
+    }
+
+    @Override
+    public List<ResponseStudent> getBorrowersOfBookById(Long id) {
+        List<Student> students = borrowerRepository.findAllBorrowersOfBookById(id);
+        List<ResponseStudent> responseStudents = students.stream()
+                .map(studentMapper::toResponseStudent).toList();
+        return responseStudents;
+    }
+
+    @Override
+    public ResponseBookDetails getBookDetailsByBookId(Long id) {
+        Book book = bookRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Book not found with id: "+id));
+        Author author = book.getAuthor();
+        List<ResponseBorrower> borrowers = borrowerService.getAllBorrowersWithDetailsOfBookById(id);
+        List<ResponseReview> reviews = reviewService.getReviewByBookId(id);
+
+        ResponseBookDetails bookDetails = new ResponseBookDetails();
+
+        bookDetails.setId(book.getId());
+        bookDetails.setTitle(book.getTitle());
+        bookDetails.setIsbn(book.getIsbn());
+        bookDetails.setGenre(book.getGenre());
+        bookDetails.setPublishedDate(book.getPublishedDate());
+
+        ResponseBookDetails.AuthorInfo authorInfo = new ResponseBookDetails.AuthorInfo();
+        authorInfo.setName(author.getName());
+        authorInfo.setDob(author.getDob());
+        authorInfo.setNationality(author.getNationality());
+
+        bookDetails.setAuthor(authorInfo);
+
+        List<ResponseBookDetails.BorrowersInfo> borrowersInfos = borrowers.stream()
+                .map(b -> {
+                    ResponseBookDetails.BorrowersInfo borrowerInfo = new ResponseBookDetails.BorrowersInfo();
+                    borrowerInfo.setStudentName(b.getStudentName());
+                    borrowerInfo.setBorrowedDate(b.getBorrowedDate());
+                    borrowerInfo.setReturnDate(b.getReturnDate());
+                    return borrowerInfo;
+                }).toList();
+
+        bookDetails.setBorrowers(borrowersInfos);
+
+        List<ResponseBookDetails.ReviewsInfo> reviewsInfos = reviews.stream()
+                .map(r -> {
+                    ResponseBookDetails.ReviewsInfo reviewInfo = new ResponseBookDetails.ReviewsInfo();
+                    reviewInfo.setReviewDesc(r.getReviewDesc());
+                    reviewInfo.setStudentName(r.getStudentName());
+                    return reviewInfo;
+                }).toList();
+
+        bookDetails.setReviews(reviewsInfos);
+
+        return bookDetails;
     }
 }

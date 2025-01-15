@@ -2,6 +2,8 @@ package ds.dms.library.services.book;
 
 import ds.dms.library.dto.book.RequestBook;
 import ds.dms.library.dto.book.ResponseBook;
+import ds.dms.library.dto.book.ResponseBookDetails;
+import ds.dms.library.dto.student.ResponseStudent;
 import ds.dms.library.entities.BookGenre;
 
 import java.util.List;
@@ -21,4 +23,7 @@ public interface BookService {
     List<ResponseBook> getBooksSearchByTitle(String title);
     Map<String, Integer> getBooksCountByGenre();
     List<Map<String,Object>> getTopReviewedBooks();
+    List<ResponseStudent> getBorrowersOfBookById(Long id);
+    ResponseBookDetails getBookDetailsByBookId(Long id);
+
 }

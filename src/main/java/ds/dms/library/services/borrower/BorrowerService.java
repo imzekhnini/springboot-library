@@ -16,4 +16,5 @@ public interface BorrowerService {
 
     List<ResponseStudent> getTopBorrowers();
     List<Map<String, Object>> getOverdueBorrowedBooks();
+    List<ResponseBorrower> getAllBorrowersWithDetailsOfBookById(Long id);
 }

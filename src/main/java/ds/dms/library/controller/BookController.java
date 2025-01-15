@@ -2,6 +2,7 @@ package ds.dms.library.controller;
 
 import ds.dms.library.dto.book.RequestBook;
 import ds.dms.library.dto.book.ResponseBook;
+import ds.dms.library.dto.book.ResponseBookDetails;
 import ds.dms.library.dto.review.ResponseReview;
 import ds.dms.library.dto.student.ResponseStudent;
 import ds.dms.library.entities.BookGenre;
@@ -74,10 +75,22 @@ public class BookController {
         return ResponseEntity.ok(books);
     }
 
+    @GetMapping("/{id}/borrowers-dup")
+    public ResponseEntity<List<ResponseStudent>> getBorrowersOfBookById(@PathVariable Long id){
+        List<ResponseStudent> students = bookService.getBorrowersOfBookById(id);
+        return ResponseEntity.ok(students);
+    }
+
     @GetMapping("/{id}")
     public ResponseEntity<ResponseBook> getBookById(@PathVariable Long id){
         ResponseBook book = bookService.getBookById(id);
         return ResponseEntity.ok(book);
+    }
+
+    @GetMapping("/{id}/details")
+    public ResponseEntity<ResponseBookDetails> getBookDetailsByBookId(@PathVariable Long id){
+        ResponseBookDetails bookDetails = bookService.getBookDetailsByBookId(id);
+        return ResponseEntity.ok(bookDetails);
     }
 
     @GetMapping("/{id}/borrowers")
