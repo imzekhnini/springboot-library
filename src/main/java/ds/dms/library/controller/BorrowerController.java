@@ -2,6 +2,7 @@ package ds.dms.library.controller;
 
 import ds.dms.library.dao.BorrowerRepository;
 import ds.dms.library.dto.borrower.RequestBorrower;
+import ds.dms.library.dto.borrower.RequestMultiBorrower;
 import ds.dms.library.dto.borrower.ResponseBorrower;
 import ds.dms.library.services.borrower.BorrowerService;
 import lombok.RequiredArgsConstructor;
@@ -34,6 +35,18 @@ public class BorrowerController {
     public ResponseEntity<List<Map<String, Object>>> getOverdueBorrowedBooks(){
         List<Map<String, Object>> response = borrowerService.getOverdueBorrowedBooks();
         return ResponseEntity.ok(response);
+    }
+
+    @PostMapping("/borrow")
+    public ResponseEntity<List<ResponseBorrower>> addMultiBorrower(@RequestBody RequestMultiBorrower requestMultiBorrower){
+        List<ResponseBorrower> borrowers = borrowerService.addMultiBorrower(requestMultiBorrower);
+        return ResponseEntity.ok(borrowers);
+    }
+
+    @PostMapping("/return")
+    public ResponseEntity<List<ResponseBorrower>> returnMultiBorrower(@RequestBody RequestMultiBorrower requestMultiBorrower){
+        List<ResponseBorrower> borrowers = borrowerService.returnMultiBorrower(requestMultiBorrower);
+        return ResponseEntity.ok(borrowers);
     }
 
     @PostMapping("/create")

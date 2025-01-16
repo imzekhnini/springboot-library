@@ -2,6 +2,7 @@ package ds.dms.library.services.student;
 
 import ds.dms.library.dto.student.RequestStudent;
 import ds.dms.library.dto.student.ResponseStudent;
+import org.springframework.http.ResponseEntity;
 
 import java.util.List;
 import java.util.Map;
@@ -16,4 +17,6 @@ public interface StudentService {
     List<ResponseStudent> getBorrowersByBookId(Long id);
     Integer getCountTotalBooksByStudentId(Long id);
     List<Map<String, Object>> getBorrowingHistoryByStudentId(Long id);
+
+    ResponseEntity<byte[]> generatePdf(Long id);
 }

@@ -11,6 +11,8 @@ import java.util.List;
 
 @Repository
 public interface BorrowerRepository extends JpaRepository<Borrower,Long> {
+    Borrower findByBookIdAndStudentId(Long bookId, Long studentId);
+
     @Query("SELECT br.id, s.name, b.title, br.borrowedDate FROM Borrower br JOIN br.book b JOIN br.student s WHERE br.returnDate IS NULL ORDER BY br.id")
     List<Object[]> findOverdueBorrowedBooks();
 

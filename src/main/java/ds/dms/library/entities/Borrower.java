@@ -17,6 +17,13 @@ public class Borrower {
     private Date borrowedDate;
     private Date returnDate;
 
+    @PrePersist
+    protected void onCreate(){
+        if (this.borrowedDate == null){
+            this.borrowedDate = new Date();
+        }
+    }
+
     @ManyToOne(fetch = FetchType.LAZY)
     private Book book;
     @ManyToOne(fetch = FetchType.LAZY)

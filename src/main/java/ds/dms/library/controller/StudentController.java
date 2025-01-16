@@ -7,6 +7,8 @@ import ds.dms.library.services.borrower.BorrowerService;
 import ds.dms.library.services.review.ReviewService;
 import ds.dms.library.services.student.StudentService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -44,6 +46,11 @@ public class StudentController {
     public ResponseEntity<List<Map<String, Object>>> getBorrowingHistoryByStudentId(@PathVariable Long id){
         List<Map<String, Object>> response = studentService.getBorrowingHistoryByStudentId(id);
         return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/{id}/borrows-history/pdf")
+    public ResponseEntity<byte[]> generatePdf(@PathVariable Long id){
+        return studentService.generatePdf(id);
     }
 
     @GetMapping("/{id}/reviews")

@@ -4,6 +4,7 @@ import ds.dms.library.dao.BookRepository;
 import ds.dms.library.dao.BorrowerRepository;
 import ds.dms.library.dao.StudentRepository;
 import ds.dms.library.dto.borrower.RequestBorrower;
+import ds.dms.library.dto.borrower.RequestMultiBorrower;
 import ds.dms.library.dto.borrower.ResponseBorrower;
 import ds.dms.library.dto.student.ResponseStudent;
 import ds.dms.library.entities.Book;
@@ -17,13 +18,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.sql.Timestamp;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -120,6 +120,48 @@ public class BorrowerServiceImpl implements BorrowerService {
     @Override
     public List<ResponseBorrower> getAllBorrowersWithDetailsOfBookById(Long id) {
         List<Borrower> borrowers = borrowerRepository.findAllBorrowersWithDetailsOfBookById(id);
+        List<ResponseBorrower> resBorrowers = borrowers.stream()
+                .map(borrowerMapper::toResponseBorrower).toList();
+        return resBorrowers;
+    }
+
+    @Override
+    public List<ResponseBorrower> addMultiBorrower(RequestMultiBorrower requestMultiBorrower) {
+        Student student = studentRepository.findById(requestMultiBorrower.getStudentId()).orElse(null);
+        if (student == null) {
+            log.warn("Student with ID " + requestMultiBorrower.getStudentId() + " not found. Aborting operation.");
+            return new ArrayList<>();
+        }
+
+        List<Borrower> borrowers = new ArrayList<>();
+        for (Long bookId : requestMultiBorrower.getBookIds()){
+            Book book = bookRepository.findById(bookId).orElse(null);
+            if (book == null) {
+                log.warn("Book with ID " + bookId + " not found. Skipping this book.");
+                continue;
+            }
+            Borrower borrower = new Borrower();
+            borrower.setBook(book);
+            borrower.setStudent(student);
+            Borrower createdBorrower = borrowerRepository.save(borrower);
+            borrowers.add(createdBorrower);
+        }
+        List<ResponseBorrower> resBorrowers = borrowers.stream()
+                .map(borrowerMapper::toResponseBorrower).toList();
+        return resBorrowers;
+    }
+
+    @Override
+    public List<ResponseBorrower> returnMultiBorrower(RequestMultiBorrower requestMultiBorrower) {
+        List<Borrower> borrowers = new ArrayList<>();
+        for (Long bookId : requestMultiBorrower.bookIds){
+            Borrower borrower = borrowerRepository.findByBookIdAndStudentId(bookId, requestMultiBorrower.getStudentId());
+            if( borrower != null ){
+                borrower.setReturnDate(new Date());
+                borrowerRepository.save(borrower);
+                borrowers.add(borrower);
+            }
+        }
         List<ResponseBorrower> resBorrowers = borrowers.stream()
                 .map(borrowerMapper::toResponseBorrower).toList();
         return resBorrowers;

@@ -1,6 +1,7 @@
 package ds.dms.library.services.borrower;
 
 import ds.dms.library.dto.borrower.RequestBorrower;
+import ds.dms.library.dto.borrower.RequestMultiBorrower;
 import ds.dms.library.dto.borrower.ResponseBorrower;
 import ds.dms.library.dto.student.ResponseStudent;
 
@@ -17,4 +18,7 @@ public interface BorrowerService {
     List<ResponseStudent> getTopBorrowers();
     List<Map<String, Object>> getOverdueBorrowedBooks();
     List<ResponseBorrower> getAllBorrowersWithDetailsOfBookById(Long id);
+
+    List<ResponseBorrower> addMultiBorrower(RequestMultiBorrower requestMultiBorrower);
+    List<ResponseBorrower> returnMultiBorrower(RequestMultiBorrower requestMultiBorrower);
 }

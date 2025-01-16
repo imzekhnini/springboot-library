@@ -1,19 +1,26 @@
 package ds.dms.library.services.student;
 
+import com.lowagie.text.Document;
+import com.lowagie.text.Element;
+import com.lowagie.text.Font;
+import com.lowagie.text.Paragraph;
+import com.lowagie.text.pdf.PdfPTable;
+import com.lowagie.text.pdf.PdfWriter;
 import ds.dms.library.dao.BorrowerRepository;
 import ds.dms.library.dao.StudentRepository;
 import ds.dms.library.dto.student.RequestStudent;
 import ds.dms.library.dto.student.ResponseStudent;
-import ds.dms.library.entities.Author;
 import ds.dms.library.entities.Student;
 import ds.dms.library.mapper.student.StudentMapper;
 import jakarta.persistence.EntityNotFoundException;
-import jakarta.persistence.criteria.CriteriaBuilder;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
-import java.io.Serial;
+import java.io.ByteArrayOutputStream;
 import java.sql.Timestamp;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
@@ -78,6 +85,70 @@ public class StudentServiceImpl implements StudentService {
             books.add(book);
         }
         return books;
+    }
+
+    @Override
+    public ResponseEntity<byte[]> generatePdf(Long id){
+        try {
+            Student student = studentRepository.findById(id).orElse(null);
+            if(student == null){
+                throw new RuntimeException("Student with id: "+ id +"does not exist!");
+            }
+
+            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+            Document document = new Document();
+            PdfWriter.getInstance(document, outputStream);
+
+            document.open();
+
+            List<Map<String, Object>> history = getBorrowingHistoryByStudentId(id);
+
+            Font titleFont = new Font(Font.HELVETICA, 18, Font.BOLD);
+            Paragraph title = new Paragraph(student.getName()+"'s borrowing history.", titleFont);
+            title.setAlignment(Element.ALIGN_CENTER);
+            title.setSpacingAfter(20);
+            document.add(title);
+
+            Paragraph studentDetails = new Paragraph();
+            studentDetails.add("Name: " + student.getName() + "\n");
+            studentDetails.add("Email: " + student.getEmail() + "\n");
+            studentDetails.add("Age: " + student.getAge() + "\n");
+            studentDetails.setSpacingAfter(10);
+            document.add(studentDetails);
+
+            PdfPTable table = new PdfPTable(3);
+            table.addCell("Book title");
+            table.addCell("Borrowed Date");
+            table.addCell("Return Date");
+
+            if(history.isEmpty()){
+                document.add(new Paragraph("This student has no borrowing history."));
+            }else{
+                for(Map<String, Object> entry : history){
+                    table.addCell((String) entry.get("book_title"));
+
+                    String borrowedDate = (String) entry.get("borrowed_date");
+                    String returnDate = (String) entry.get("return_date");
+
+                    table.addCell(borrowedDate != null ? borrowedDate : "N/A");
+                    table.addCell(returnDate != null ? returnDate : "N/A");
+                }
+            }
+
+            document.add(table);
+
+            document.close();
+
+            String filename = student.getName().replace(" ", "_") + "_borrowing_history.pdf";
+
+            return ResponseEntity.ok()
+                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + filename )
+                    .contentType(MediaType.APPLICATION_PDF)
+                    .body(outputStream.toByteArray());
+
+        } catch (Exception e) {
+            throw new RuntimeException("Error generating PDF: " + e.getMessage(), e);
+        }
     }
 
     @Override
