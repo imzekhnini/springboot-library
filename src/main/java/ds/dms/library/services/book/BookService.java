@@ -5,6 +5,7 @@ import ds.dms.library.dto.book.ResponseBook;
 import ds.dms.library.dto.book.ResponseBookDetails;
 import ds.dms.library.dto.student.ResponseStudent;
 import ds.dms.library.entities.BookGenre;
+import org.springframework.data.domain.Page;
 
 import java.util.List;
 import java.util.Map;
@@ -15,6 +16,8 @@ public interface BookService {
     ResponseBook addBook(RequestBook requestBook);
     ResponseBook updateBook(Long id, RequestBook requestBook);
     String deleteBook(Long id);
+
+    Page<ResponseBook> getBooksPaginated(int page, int size, String sortField, String sortDirection);
 
     List<ResponseBook> getBooksByAuthorId(Long id);
     List<ResponseBook> getBooksByBookGenre(BookGenre genre);

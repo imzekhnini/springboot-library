@@ -20,6 +20,10 @@ import jakarta.persistence.EntityNotFoundException;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -39,6 +43,8 @@ public class BookServiceImpl implements BookService {
     public final StudentMapper studentMapper;
     public final ReviewService reviewService;
     public final BorrowerService borrowerService;
+
+    public static final Integer MAX_PAGE_SIZE = 10;
 
     @Override
     public List<ResponseBook> getAllBooks() {
@@ -80,6 +86,15 @@ public class BookServiceImpl implements BookService {
                 .orElseThrow(() -> new EntityNotFoundException("Book not found with id: "+id));
         bookRepository.deleteById(id);
         return "Book id: "+id+" deleted!";
+    }
+
+    @Override
+    public Page<ResponseBook> getBooksPaginated(int page, int size, String sortField, String sortDirection) {
+        size = size > MAX_PAGE_SIZE ? MAX_PAGE_SIZE : size;
+        Sort sort = Sort.by(Sort.Direction.fromString(sortDirection), sortField);
+        Pageable pageable = PageRequest.of(page, size, sort);
+        Page<Book> booksPage = bookRepository.findAll(pageable);
+        return booksPage.map(bookMapper::toResponseBook);
     }
 
     @Override

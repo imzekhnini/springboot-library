@@ -11,6 +11,7 @@ import ds.dms.library.services.review.ReviewService;
 import ds.dms.library.services.student.StudentService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -37,6 +38,22 @@ public class BookController {
     public ResponseEntity<List<ResponseBook>> getBooksByAuthorId(@PathVariable Long id){
         List<ResponseBook> books = bookService.getBooksByAuthorId(id);
         return ResponseEntity.ok(books);
+    }
+
+    @GetMapping("/paginate")
+    public ResponseEntity<Map<String, Object>> getBooksPaginated(
+            @RequestParam(defaultValue = "0") Integer page, @RequestParam(defaultValue = "10") Integer size,
+            @RequestParam(defaultValue = "id") String sortField, @RequestParam(defaultValue = "asc") String sortDirection
+    ){
+        Page<ResponseBook> booksPage = bookService.getBooksPaginated(page, size, sortField, sortDirection);
+        Map<String, Object> response = new HashMap<>();
+
+        response.put("books", booksPage.getContent());
+        response.put("currentPage", booksPage.getNumber());
+        response.put("totalItems", booksPage.getTotalElements());
+        response.put("totalPages", booksPage.getTotalPages());
+
+        return ResponseEntity.ok(response);
     }
 
     @GetMapping("/search")
