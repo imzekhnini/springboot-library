@@ -6,6 +6,7 @@ import ds.dms.library.dto.student.ResponseStudent;
 import ds.dms.library.services.borrower.BorrowerService;
 import ds.dms.library.services.review.ReviewService;
 import ds.dms.library.services.student.StudentService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -66,7 +67,7 @@ public class StudentController {
     }
 
     @PostMapping("/create")
-    public ResponseEntity<ResponseStudent> addStudent(@RequestBody RequestStudent requestStudent){
+    public ResponseEntity<ResponseStudent> addStudent(@Valid @RequestBody RequestStudent requestStudent){
         ResponseStudent student = studentService.addStudent(requestStudent);
         return ResponseEntity.ok(student);
     }
