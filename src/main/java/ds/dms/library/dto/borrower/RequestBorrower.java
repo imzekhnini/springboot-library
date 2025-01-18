@@ -11,11 +11,11 @@ import java.util.Date;
 @AllArgsConstructor
 @ToString
 public class RequestBorrower {
-    @NotNull
+    @NotNull(message = "Borrowed Date must not be null.")
     private Date borrowedDate;
     private Date returnDate;
-    @NotNull
+    @NotNull(message = "Student id must not be null.")
     private Long studentId;
-    @NotNull
+    @NotNull(message = "Book id must not be null.")
     private Long bookId;
 }
