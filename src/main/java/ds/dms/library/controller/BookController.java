@@ -9,6 +9,7 @@ import ds.dms.library.entities.BookGenre;
 import ds.dms.library.services.book.BookService;
 import ds.dms.library.services.review.ReviewService;
 import ds.dms.library.services.student.StudentService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -123,7 +124,7 @@ public class BookController {
     }
 
     @PostMapping("/create")
-    public ResponseEntity<ResponseBook> addBook(@RequestBody RequestBook requestBook){
+    public ResponseEntity<ResponseBook> addBook(@Valid @RequestBody RequestBook requestBook){
         ResponseBook book = bookService.addBook(requestBook);
         return ResponseEntity.ok(book);
     }

@@ -4,6 +4,7 @@ import ds.dms.library.dao.AuthorRepository;
 import ds.dms.library.dto.author.RequestAuthor;
 import ds.dms.library.dto.author.ResponseAuthor;
 import ds.dms.library.services.author.AuthorService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -41,7 +42,7 @@ public class AuthorController {
     }
 
     @PostMapping("/create")
-    public ResponseEntity<ResponseAuthor> addAuthor(@RequestBody RequestAuthor requestAuthor){
+    public ResponseEntity<ResponseAuthor> addAuthor(@Valid @RequestBody RequestAuthor requestAuthor){
         ResponseAuthor author = authorService.addAuthor(requestAuthor);
         return ResponseEntity.ok(author);
     }

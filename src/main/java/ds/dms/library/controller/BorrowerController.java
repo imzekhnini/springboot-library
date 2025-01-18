@@ -5,6 +5,7 @@ import ds.dms.library.dto.borrower.RequestBorrower;
 import ds.dms.library.dto.borrower.RequestMultiBorrower;
 import ds.dms.library.dto.borrower.ResponseBorrower;
 import ds.dms.library.services.borrower.BorrowerService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -50,7 +51,7 @@ public class BorrowerController {
     }
 
     @PostMapping("/create")
-    public ResponseEntity<ResponseBorrower> addBorrower(@RequestBody RequestBorrower requestBorrower){
+    public ResponseEntity<ResponseBorrower> addBorrower(@Valid @RequestBody RequestBorrower requestBorrower){
         ResponseBorrower borrower = borrowerService.addBorrower(requestBorrower);
         return ResponseEntity.ok(borrower);
     }

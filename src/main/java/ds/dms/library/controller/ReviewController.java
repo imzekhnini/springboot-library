@@ -3,6 +3,7 @@ package ds.dms.library.controller;
 import ds.dms.library.dto.review.RequestReview;
 import ds.dms.library.dto.review.ResponseReview;
 import ds.dms.library.services.review.ReviewService;
+import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -31,7 +32,7 @@ public class ReviewController {
     }
 
     @PostMapping("/create")
-    public ResponseEntity<ResponseReview> addReview(@RequestBody RequestReview requestReview){
+    public ResponseEntity<ResponseReview> addReview(@Valid  @RequestBody RequestReview requestReview){
         ResponseReview review = reviewService.addReview(requestReview);
         return ResponseEntity.ok(review);
     }
