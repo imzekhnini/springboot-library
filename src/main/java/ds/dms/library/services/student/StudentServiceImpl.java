@@ -15,6 +15,10 @@ import ds.dms.library.mapper.student.StudentMapper;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -38,6 +42,8 @@ public class StudentServiceImpl implements StudentService {
     public final StudentRepository studentRepository;
     public final StudentMapper studentMapper;
     public final BorrowerRepository borrowerRepository;
+
+    public static final Integer MAX_PAGE_SIZE = 10;
 
     @Override
     public List<ResponseStudent> getAllStudent() {
@@ -149,6 +155,15 @@ public class StudentServiceImpl implements StudentService {
         } catch (Exception e) {
             throw new RuntimeException("Error generating PDF: " + e.getMessage(), e);
         }
+    }
+
+    @Override
+    public Page<ResponseStudent> getStudentsPaginated(Integer page, Integer size, String sortField, String sortDirection) {
+        size = size > MAX_PAGE_SIZE ? MAX_PAGE_SIZE : size;
+        Sort sort = Sort.by(Sort.Direction.fromString(sortDirection), sortField);
+        Pageable pageable = PageRequest.of(page, size, sort);
+        Page<Student> students = studentRepository.findAll(pageable);
+        return students.map(studentMapper::toResponseStudent);
     }
 
     @Override

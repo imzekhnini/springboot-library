@@ -8,6 +8,7 @@ import ds.dms.library.services.review.ReviewService;
 import ds.dms.library.services.student.StudentService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -29,6 +30,21 @@ public class StudentController {
     public ResponseEntity<List<ResponseStudent>> getAllStudents(){
         List<ResponseStudent> students = studentService.getAllStudent();
         return ResponseEntity.ok(students);
+    }
+
+    @GetMapping("/paginate")
+    public ResponseEntity<Map<String, Object>> getStudentsPaginated(
+            @RequestParam(defaultValue = "0") Integer page, @RequestParam(defaultValue = "10") Integer size,
+            @RequestParam(defaultValue = "id") String sortField, @RequestParam(defaultValue = "asc") String sortDirection
+    ){
+        Page<ResponseStudent> students = studentService.getStudentsPaginated(page, size, sortField, sortDirection);
+        Map<String, Object> response = new HashMap<>();
+        response.put("data", students.getContent());
+        response.put("currentPage", students.getNumber());
+        response.put("totalItems", students.getTotalElements());
+        response.put("totalpages", students.getTotalPages());
+
+        return ResponseEntity.ok(response);
     }
 
     @GetMapping("/{id}")

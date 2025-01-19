@@ -2,6 +2,7 @@ package ds.dms.library.services.student;
 
 import ds.dms.library.dto.student.RequestStudent;
 import ds.dms.library.dto.student.ResponseStudent;
+import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 
 import java.util.List;
@@ -19,4 +20,6 @@ public interface StudentService {
     List<Map<String, Object>> getBorrowingHistoryByStudentId(Long id);
 
     ResponseEntity<byte[]> generatePdf(Long id);
+
+    Page<ResponseStudent> getStudentsPaginated(Integer page, Integer size, String sortField, String sortDirection);
 }

@@ -3,10 +3,12 @@ package ds.dms.library.controller;
 import ds.dms.library.dao.AuthorRepository;
 import ds.dms.library.dto.author.RequestAuthor;
 import ds.dms.library.dto.author.ResponseAuthor;
+import ds.dms.library.entities.Author;
 import ds.dms.library.services.author.AuthorService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.function.EntityResponse;
@@ -25,8 +27,24 @@ public class AuthorController {
 
     @GetMapping("/")
     public ResponseEntity<List<ResponseAuthor>> getAllAuthors() {
-        List<ResponseAuthor> authors = authorService.getAllAuthor(); // Fetch authors from the service
-        return ResponseEntity.ok(authors); // Return the list with HTTP 200 status
+        List<ResponseAuthor> authors = authorService.getAllAuthor();
+        return ResponseEntity.ok(authors);
+    }
+
+    @GetMapping("/paginate")
+    public ResponseEntity<Map<String, Object>> getAuthorsPaginated(
+            @RequestParam(defaultValue = "0") Integer page, @RequestParam(defaultValue = "10") Integer size,
+            @RequestParam(defaultValue = "id") String sortField, @RequestParam(defaultValue = "asc") String sortDirection
+    ) {
+        Page<ResponseAuthor> authors = authorService.getAuthorsPaginated(page, size, sortField, sortDirection);
+        Map<String, Object> response = new HashMap<>();
+
+        response.put("data", authors.getContent());
+        response.put("currentPage", authors.getNumber());
+        response.put("totalItems", authors.getTotalElements());
+        response.put("totalPages", authors.getTotalPages());
+
+        return ResponseEntity.ok(response);
     }
 
     @GetMapping("/{id}")

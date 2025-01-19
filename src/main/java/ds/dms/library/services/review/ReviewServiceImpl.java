@@ -11,6 +11,10 @@ import ds.dms.library.entities.Student;
 import ds.dms.library.mapper.review.ReviewMapper;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.AllArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -23,6 +27,8 @@ public class ReviewServiceImpl implements ReviewService {
     public final ReviewRepository reviewRepository;
     public final StudentRepository studentRepository;
     public final BookRepository bookRepository;
+
+    public static final Integer MAX_PAGE_SIZE = 10;
 
     @Override
     public List<ResponseReview> getAllReview() {
@@ -55,6 +61,15 @@ public class ReviewServiceImpl implements ReviewService {
                 .map(reviewMapper::toReviewResponse)
                 .collect(Collectors.toList());
         return resReviews;
+    }
+
+    @Override
+    public Page<ResponseReview> getReviewsPaginated(Integer page, Integer size, String sortField, String sortDirection) {
+        size = size > MAX_PAGE_SIZE ? MAX_PAGE_SIZE : size;
+        Sort sort = Sort.by(Sort.Direction.fromString(sortDirection), sortField);
+        Pageable pageable = PageRequest.of(page, size, sort);
+        Page<Review> reviews = reviewRepository.findAll(pageable);
+        return reviews.map(reviewMapper::toReviewResponse);
     }
 
     @Override

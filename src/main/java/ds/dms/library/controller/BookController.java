@@ -49,7 +49,7 @@ public class BookController {
         Page<ResponseBook> booksPage = bookService.getBooksPaginated(page, size, sortField, sortDirection);
         Map<String, Object> response = new HashMap<>();
 
-        response.put("books", booksPage.getContent());
+        response.put("data", booksPage.getContent());
         response.put("currentPage", booksPage.getNumber());
         response.put("totalItems", booksPage.getTotalElements());
         response.put("totalPages", booksPage.getTotalPages());

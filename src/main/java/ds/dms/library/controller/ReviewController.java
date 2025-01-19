@@ -3,8 +3,10 @@ package ds.dms.library.controller;
 import ds.dms.library.dto.review.RequestReview;
 import ds.dms.library.dto.review.ResponseReview;
 import ds.dms.library.services.review.ReviewService;
+import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -23,6 +25,20 @@ public class ReviewController {
     public ResponseEntity<List<ResponseReview>> getAllReviews(){
         List<ResponseReview> reviews = reviewService.getAllReview();
         return ResponseEntity.ok(reviews);
+    }
+
+    @GetMapping("/paginate")
+    public ResponseEntity<Map<String, Object>> getReviewsPaginated(
+            @RequestParam(defaultValue = "0") Integer page, @RequestParam(defaultValue = "10") Integer size,
+            @RequestParam(defaultValue = "id") String sortField, @RequestParam(defaultValue = "asc") String sortDirection
+            ){
+        Page<ResponseReview> reviews = reviewService.getReviewsPaginated(page, size, sortField, sortDirection);
+        Map<String, Object> response = new HashMap<>();
+        response.put("data", reviews.getContent());
+        response.put("totalPages", reviews.getTotalPages());
+        response.put("totalItems", reviews.getTotalElements());
+        response.put("currentPage", reviews.getNumber());
+        return ResponseEntity.ok(response);
     }
 
     @GetMapping("/{id}")
