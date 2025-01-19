@@ -10,9 +10,11 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.HashMap;
 import java.util.List;
@@ -80,6 +82,21 @@ public class StudentController {
     public ResponseEntity<List<ResponseStudent>> getTopBorrowers(){
         List<ResponseStudent> students = borrowerService.getTopBorrowers();
         return ResponseEntity.ok(students);
+    }
+
+    @PostMapping("/upload")
+    public ResponseEntity<Map<String, String>> uploadPdf(@RequestParam("file") MultipartFile file){
+        try{
+            String response = studentService.uploadFilePdf(file);
+            Map<String, String> successResponse = new HashMap<>();
+            successResponse.put("message", response);
+            return ResponseEntity.ok(successResponse);
+        }catch (Exception e){
+            Map<String, String> errorResponse = new HashMap<>();
+            errorResponse.put("error", "Failed to upload file: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
+        }
+
     }
 
     @PostMapping("/create")

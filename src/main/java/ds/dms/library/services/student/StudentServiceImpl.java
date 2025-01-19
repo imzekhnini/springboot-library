@@ -23,8 +23,14 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.sql.Timestamp;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
@@ -44,6 +50,7 @@ public class StudentServiceImpl implements StudentService {
     public final BorrowerRepository borrowerRepository;
 
     public static final Integer MAX_PAGE_SIZE = 10;
+    public static final String UPLOAD_DIR = "uploads/";
 
     @Override
     public List<ResponseStudent> getAllStudent() {
@@ -155,6 +162,26 @@ public class StudentServiceImpl implements StudentService {
         } catch (Exception e) {
             throw new RuntimeException("Error generating PDF: " + e.getMessage(), e);
         }
+    }
+
+    @Override
+    public String uploadFilePdf(MultipartFile file) throws IOException {
+        if(!file.getContentType().equals("application/pdf")){
+            throw new IllegalArgumentException("Only pdf files are allowed");
+        }
+
+        Path uploadPath = Paths.get(UPLOAD_DIR);
+
+        if(!Files.exists(uploadPath)){
+            Files.createDirectories(uploadPath);
+        }
+
+        String fileName = System.currentTimeMillis()+ "_" + file.getOriginalFilename();
+        Path filePath = uploadPath.resolve(fileName);
+
+        Files.copy(file.getInputStream(),filePath, StandardCopyOption.REPLACE_EXISTING);
+
+        return "File uploaded successfully";
     }
 
     @Override
