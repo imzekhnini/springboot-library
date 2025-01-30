@@ -8,6 +8,7 @@ import com.lowagie.text.pdf.PdfPTable;
 import com.lowagie.text.pdf.PdfWriter;
 import ds.dms.library.dao.BorrowerRepository;
 import ds.dms.library.dao.StudentRepository;
+import ds.dms.library.dto.paginate.PaginatedResponse;
 import ds.dms.library.dto.student.RequestStudent;
 import ds.dms.library.dto.student.ResponseStudent;
 import ds.dms.library.entities.Student;
@@ -45,184 +46,189 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 @Slf4j
 public class StudentServiceImpl implements StudentService {
-    public final StudentRepository studentRepository;
-    public final StudentMapper studentMapper;
-    public final BorrowerRepository borrowerRepository;
+  public final StudentRepository studentRepository;
+  public final StudentMapper studentMapper;
+  public final BorrowerRepository borrowerRepository;
 
-    public static final Integer MAX_PAGE_SIZE = 10;
-    public static final String UPLOAD_DIR = "uploads/";
+  public static final Integer MAX_PAGE_SIZE = 10;
+  public static final String UPLOAD_DIR = "uploads/";
 
-    @Override
-    public List<ResponseStudent> getAllStudent() {
-        List<Student> students = studentRepository.findAll();
-        List<ResponseStudent> resStudents = students.stream()
-                .map(studentMapper::toResponseStudent)
-                .collect(Collectors.toList());
-        return resStudents;
+  @Override
+  public List<ResponseStudent> getAllStudent() {
+    List<Student> students = studentRepository.findAll();
+    List<ResponseStudent> resStudents = students.stream()
+        .map(studentMapper::toResponseStudent)
+        .collect(Collectors.toList());
+    return resStudents;
+  }
+
+  @Override
+  public List<ResponseStudent> getBorrowersByBookId(Long id) {
+    List<Student> students = studentRepository.findBorrowersByBookId(id);
+    List<ResponseStudent> resStudents = students.stream()
+        .map(studentMapper::toResponseStudent)
+        .collect(Collectors.toList());
+    return resStudents;
+  }
+
+  @Override
+  public Integer getCountTotalBooksByStudentId(Long id) {
+    Object[] response = borrowerRepository.findCountTotalBooksByStudentId(id);
+    Integer counter = ((Long) response[0]).intValue();
+    return counter;
+  }
+
+  @Override
+  public List<Map<String, Object>> getBorrowingHistoryByStudentId(Long id) {
+    List<Object[]> response = borrowerRepository.findBorrowingHistoryByStudentId(id);
+    List<Map<String, Object>> books = new ArrayList<>();
+    for (Object[] entry : response) {
+      Map<String, Object> book = new HashMap<>();
+      book.put("book_title", entry[0]);
+      Timestamp tsBorrowDate = (Timestamp) entry[1];
+      OffsetDateTime borrowDate = tsBorrowDate.toInstant().atOffset(ZoneOffset.UTC);
+      String formatBorrowDate = borrowDate.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"));
+      book.put("borrowed_date", formatBorrowDate);
+      if (entry[2] == null) {
+        book.put("return_date", null);
+      } else {
+        Timestamp tsReturnDate = (Timestamp) entry[2];
+        OffsetDateTime returnDate = tsReturnDate.toInstant().atOffset(ZoneOffset.UTC);
+        String formatReturnDate = returnDate.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"));
+        book.put("return_date", formatReturnDate);
+      }
+      books.add(book);
     }
-    @Override
-    public List<ResponseStudent> getBorrowersByBookId(Long id) {
-        List<Student> students = studentRepository.findBorrowersByBookId(id);
-        List<ResponseStudent> resStudents = students.stream()
-                .map(studentMapper::toResponseStudent)
-                .collect(Collectors.toList());
-        return resStudents;
-    }
+    return books;
+  }
 
-    @Override
-    public Integer getCountTotalBooksByStudentId(Long id) {
-        Object[] response = borrowerRepository.findCountTotalBooksByStudentId(id);
-        Integer counter = ((Long) response[0]).intValue();
-        return counter;
-    }
+  @Override
+  public ResponseEntity<byte[]> generatePdf(Long id) {
+    try {
+      Student student = studentRepository.findById(id).orElse(null);
+      if (student == null) {
+        throw new RuntimeException("Student with id: " + id + "does not exist!");
+      }
 
-    @Override
-    public List<Map<String, Object>> getBorrowingHistoryByStudentId(Long id) {
-        List<Object[]> response = borrowerRepository.findBorrowingHistoryByStudentId(id);
-        List<Map<String, Object>> books = new ArrayList<>();
-        for (Object[] entry : response){
-            Map<String, Object> book = new HashMap<>();
-            book.put("book_title", entry[0]);
-            Timestamp tsBorrowDate = (Timestamp) entry[1];
-            OffsetDateTime borrowDate = tsBorrowDate.toInstant().atOffset(ZoneOffset.UTC);
-            String formatBorrowDate = borrowDate.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"));
-            book.put("borrowed_date", formatBorrowDate);
-            if (entry[2] == null){
-                book.put("return_date", null);
-            }else{
-                Timestamp tsReturnDate = (Timestamp) entry[2];
-                OffsetDateTime returnDate = tsReturnDate.toInstant().atOffset(ZoneOffset.UTC);
-                String formatReturnDate = returnDate.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"));
-                book.put("return_date", formatReturnDate);
-            }
-            books.add(book);
+      ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+      Document document = new Document();
+      PdfWriter.getInstance(document, outputStream);
+
+      document.open();
+
+      List<Map<String, Object>> history = getBorrowingHistoryByStudentId(id);
+
+      Font titleFont = new Font(Font.HELVETICA, 18, Font.BOLD);
+      Paragraph title = new Paragraph(student.getName() + "'s borrowing history.", titleFont);
+      title.setAlignment(Element.ALIGN_CENTER);
+      title.setSpacingAfter(20);
+      document.add(title);
+
+      Paragraph studentDetails = new Paragraph();
+      studentDetails.add("Name: " + student.getName() + "\n");
+      studentDetails.add("Email: " + student.getEmail() + "\n");
+      studentDetails.add("Age: " + student.getAge() + "\n");
+      studentDetails.setSpacingAfter(10);
+      document.add(studentDetails);
+
+      PdfPTable table = new PdfPTable(3);
+      table.addCell("Book title");
+      table.addCell("Borrowed Date");
+      table.addCell("Return Date");
+
+      if (history.isEmpty()) {
+        document.add(new Paragraph("This student has no borrowing history."));
+      } else {
+        for (Map<String, Object> entry : history) {
+          table.addCell((String) entry.get("book_title"));
+
+          String borrowedDate = (String) entry.get("borrowed_date");
+          String returnDate = (String) entry.get("return_date");
+
+          table.addCell(borrowedDate != null ? borrowedDate : "N/A");
+          table.addCell(returnDate != null ? returnDate : "N/A");
         }
-        return books;
+      }
+
+      document.add(table);
+
+      document.close();
+
+      String filename = student.getName().replace(" ", "_") + "_borrowing_history.pdf";
+
+      return ResponseEntity.ok()
+          .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + filename)
+          .contentType(MediaType.APPLICATION_PDF)
+          .body(outputStream.toByteArray());
+
+    } catch (Exception e) {
+      throw new RuntimeException("Error generating PDF: " + e.getMessage(), e);
+    }
+  }
+
+  @Override
+  public String uploadFilePdf(MultipartFile file) throws IOException {
+    if (!file.getContentType().equals("application/pdf")) {
+      throw new IllegalArgumentException("Only pdf files are allowed");
     }
 
-    @Override
-    public ResponseEntity<byte[]> generatePdf(Long id){
-        try {
-            Student student = studentRepository.findById(id).orElse(null);
-            if(student == null){
-                throw new RuntimeException("Student with id: "+ id +"does not exist!");
-            }
+    Path uploadPath = Paths.get(UPLOAD_DIR);
 
-            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-            Document document = new Document();
-            PdfWriter.getInstance(document, outputStream);
-
-            document.open();
-
-            List<Map<String, Object>> history = getBorrowingHistoryByStudentId(id);
-
-            Font titleFont = new Font(Font.HELVETICA, 18, Font.BOLD);
-            Paragraph title = new Paragraph(student.getName()+"'s borrowing history.", titleFont);
-            title.setAlignment(Element.ALIGN_CENTER);
-            title.setSpacingAfter(20);
-            document.add(title);
-
-            Paragraph studentDetails = new Paragraph();
-            studentDetails.add("Name: " + student.getName() + "\n");
-            studentDetails.add("Email: " + student.getEmail() + "\n");
-            studentDetails.add("Age: " + student.getAge() + "\n");
-            studentDetails.setSpacingAfter(10);
-            document.add(studentDetails);
-
-            PdfPTable table = new PdfPTable(3);
-            table.addCell("Book title");
-            table.addCell("Borrowed Date");
-            table.addCell("Return Date");
-
-            if(history.isEmpty()){
-                document.add(new Paragraph("This student has no borrowing history."));
-            }else{
-                for(Map<String, Object> entry : history){
-                    table.addCell((String) entry.get("book_title"));
-
-                    String borrowedDate = (String) entry.get("borrowed_date");
-                    String returnDate = (String) entry.get("return_date");
-
-                    table.addCell(borrowedDate != null ? borrowedDate : "N/A");
-                    table.addCell(returnDate != null ? returnDate : "N/A");
-                }
-            }
-
-            document.add(table);
-
-            document.close();
-
-            String filename = student.getName().replace(" ", "_") + "_borrowing_history.pdf";
-
-            return ResponseEntity.ok()
-                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + filename )
-                    .contentType(MediaType.APPLICATION_PDF)
-                    .body(outputStream.toByteArray());
-
-        } catch (Exception e) {
-            throw new RuntimeException("Error generating PDF: " + e.getMessage(), e);
-        }
+    if (!Files.exists(uploadPath)) {
+      Files.createDirectories(uploadPath);
     }
 
-    @Override
-    public String uploadFilePdf(MultipartFile file) throws IOException {
-        if(!file.getContentType().equals("application/pdf")){
-            throw new IllegalArgumentException("Only pdf files are allowed");
-        }
+    String fileName = System.currentTimeMillis() + "_" + file.getOriginalFilename();
+    Path filePath = uploadPath.resolve(fileName);
 
-        Path uploadPath = Paths.get(UPLOAD_DIR);
+    Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
 
-        if(!Files.exists(uploadPath)){
-            Files.createDirectories(uploadPath);
-        }
+    return "File uploaded successfully";
+  }
 
-        String fileName = System.currentTimeMillis()+ "_" + file.getOriginalFilename();
-        Path filePath = uploadPath.resolve(fileName);
+  @Override
+  public PaginatedResponse getStudentsPaginated(Integer page, Integer size, String sortField, String sortDirection) {
+    size = size > MAX_PAGE_SIZE ? MAX_PAGE_SIZE : size;
+    Sort sort = Sort.by(Sort.Direction.fromString(sortDirection), sortField);
+    Pageable pageable = PageRequest.of(page, size, sort);
+    Page<Student> students = studentRepository.findAll(pageable);
+    PaginatedResponse response = new PaginatedResponse();
+    response.setData(students.map(studentMapper::toResponseStudent).getContent());
+    response.setCurrentPage(students.getNumber());
+    response.setTotalItems(students.getTotalElements());
+    response.setTotalPages(students.getTotalPages());
+    return response;
+  }
 
-        Files.copy(file.getInputStream(),filePath, StandardCopyOption.REPLACE_EXISTING);
+  @Override
+  public ResponseStudent getStudentById(Long id) {
+    Student student = studentRepository.findById(id)
+        .orElseThrow(() -> new EntityNotFoundException("Student not found with id: " + id));
+    return studentMapper.toResponseStudent(student);
+  }
 
-        return "File uploaded successfully";
-    }
+  @Override
+  public ResponseStudent addStudent(RequestStudent requestStudent) {
+    Student student = studentMapper.toEntity(requestStudent);
+    Student savedStudent = studentRepository.save(student);
+    return studentMapper.toResponseStudent(savedStudent);
+  }
 
-    @Override
-    public Page<ResponseStudent> getStudentsPaginated(Integer page, Integer size, String sortField, String sortDirection) {
-        size = size > MAX_PAGE_SIZE ? MAX_PAGE_SIZE : size;
-        Sort sort = Sort.by(Sort.Direction.fromString(sortDirection), sortField);
-        Pageable pageable = PageRequest.of(page, size, sort);
-        Page<Student> students = studentRepository.findAll(pageable);
-        return students.map(studentMapper::toResponseStudent);
-    }
+  @Override
+  public ResponseStudent updateStudent(Long id, RequestStudent requestStudent) {
+    Student student = studentRepository.findById(id)
+        .orElseThrow(() -> new EntityNotFoundException("Student not found with id: " + id));
+    studentMapper.updateEntityFromRequest(requestStudent, student);
+    Student updatedSaved = studentRepository.save(student);
+    return studentMapper.toResponseStudent(updatedSaved);
+  }
 
-    @Override
-    public ResponseStudent getStudentById(Long id) {
-        Student student = studentRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Student not found with id: "+id));
-        return studentMapper.toResponseStudent(student);
-    }
-
-    @Override
-    public ResponseStudent addStudent(RequestStudent requestStudent) {
-        Student student = studentMapper.toEntity(requestStudent);
-        Student savedStudent = studentRepository.save(student);
-        return studentMapper.toResponseStudent(savedStudent);
-    }
-
-    @Override
-    public ResponseStudent updateStudent(Long id, RequestStudent requestStudent) {
-        Student student = studentRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Student not found with id: "+id));
-        studentMapper.updateEntityFromRequest(requestStudent, student);
-        Student updatedSaved = studentRepository.save(student);
-        return studentMapper.toResponseStudent(updatedSaved);
-    }
-
-    @Override
-    public String deleteStudent(Long id) {
-        Student student = studentRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Student not found with id: "+id));
-        studentRepository.deleteById(id);
-        return "Student id: "+ id +" deleted!";
-    }
-
+  @Override
+  public String deleteStudent(Long id) {
+    Student student = studentRepository.findById(id)
+        .orElseThrow(() -> new EntityNotFoundException("Student not found with id: " + id));
+    studentRepository.deleteById(id);
+    return "Student id: " + id + " deleted!";
+  }
 
 }
